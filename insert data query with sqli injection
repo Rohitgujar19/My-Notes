@@ -1,0 +1,38 @@
+include 'config.php';
+function ticket_insert($ticketdata)
+{ 
+	
+	global $intra;
+	global $res;
+	$data=json_decode($ticketdata,true);
+	// echo"<pre>";
+	// print_r($data);
+	// echo"<pre>";
+	$sql="INSERT INTO intra_tickets(user_id,ticket_category,ticket_priority,ticket_subject,ticket_summary,ticket_attachments,ticket_updated_by)VALUES(?,?,?,?,?,?,?)";
+	$stmt = $intra->prepare($sql);
+	 $stmt->bind_param("isssssi",$user_id,$ticket_category,$ticket_priority,$ticket_subject,$ticket_summary,$ticket_attachments,$ticket_updated_by);
+	$user_id=$data['user_id'];
+	$ticket_category=$data['ticket_category'];
+	$ticket_priority=$data['ticket_priority'];
+	$ticket_subject=$data['ticket_subject'];
+	$ticket_summary=$data['ticket_summary'];
+	$ticket_attachments=$data['ticket_attachments'];
+	$ticket_updated_by=$data['ticket_updated_by'];
+	// $sql=mysqli_query($intra,"insert into intra_tickets(user_id,ticket_category,ticket_priority,ticket_subject,ticket_summary,ticket_attachments,ticket_updated_by)VALUES('$user_id','$ticket_category','$ticket_priority','$ticket_subject','$ticket_summary','$ticket_attachments','$ticket_updated_by')");
+
+	
+	if($stmt->execute()){
+$res = [
+  'type' => '200',
+  'msg' => 'Data Inserted Successfully'
+  ];
+}else{
+$res = [
+  'type' => '400',
+  'msg' => $stmt->error
+  ];
+}
+
+$stmt->close();
+return json_encode($res);
+}
