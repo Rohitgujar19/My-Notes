@@ -1,0 +1,136 @@
+<?php
+include 'config.php';
+function ticket_insert($ticketdata)
+{ 
+	
+	global $intra;
+	global $res;
+	$data=json_decode($ticketdata,true);
+	// echo"<pre>";
+	// print_r($data);
+	// echo"<pre>";
+	$sql="INSERT INTO intra_tickets(user_id,ticket_category,ticket_priority,ticket_subject,ticket_summary,ticket_attachments,ticket_updated_by)VALUES(?,?,?,?,?,?,?)";
+	$stmt = $intra->prepare($sql);
+	 $stmt->bind_param("isssssi",$user_id,$ticket_category,$ticket_priority,$ticket_subject,$ticket_summary,$ticket_attachments,$ticket_updated_by);
+	$user_id=$data['user_id'];
+	$ticket_category=$data['ticket_category'];
+	$ticket_priority=$data['ticket_priority'];
+	$ticket_subject=$data['ticket_subject'];
+	$ticket_summary=$data['ticket_summary'];
+	$ticket_attachments=$data['ticket_attachments'];
+	$ticket_updated_by=$data['ticket_updated_by'];
+	// $sql=mysqli_query($intra,"insert into intra_tickets(user_id,ticket_category,ticket_priority,ticket_subject,ticket_summary,ticket_attachments,ticket_updated_by)VALUES('$user_id','$ticket_category','$ticket_priority','$ticket_subject','$ticket_summary','$ticket_attachments','$ticket_updated_by')");
+
+	
+	if($stmt->execute()){
+$res = [
+  'type' => '200',
+  'msg' => 'Data Inserted Successfully'
+  ];
+}else{
+$res = [
+  'type' => '400',
+  'msg' => $stmt->error
+  ];
+}
+
+$stmt->close();
+return json_encode($res);
+}
+	
+function ticket_show()
+{
+	global $intra;
+	global $res;
+	$empty_array=[];
+	$show_query="SELECT * FROM intra_tickets";
+	$stmt=$intra->prepare($show_query);
+	$stmt->execute();
+	$result=$stmt->get_result();
+	while ($row = $result->fetch_array()) {
+       $empty_array[]=$row;
+}
+    
+	$show_data=json_encode($empty_array,JSON_PRETTY_PRINT);
+	//file_put_contents('form.json',$show_data);	
+	return $show_data;
+}
+function update_tecket_show($id)
+{
+	global $intra;
+	global $res;
+    
+   	$show_query="SELECT * FROM intra_tickets WHERE id=?";
+     $stmt = $intra->prepare($show_query);
+     $stmt->bind_param("i", $id);
+     $stmt->execute();
+     $result = $stmt->get_result();
+    $show_data = $result->fetch_assoc(); 
+    
+       // $show_data=mysqli_fetch_assoc($show_query);
+       $select_data=json_encode($show_data,JSON_PRETTY_PRINT);
+       return $select_data;           
+}
+function update_ticket($ticket_data)
+{
+	global $intra;
+	global $res;
+	$data=json_decode($ticket_data,true);
+
+	$sql="UPDATE intra_tickets SET ticket_category=?,ticket_priority=?,ticket_subject=?,ticket_summary=?,ticket_attachments=? where id=?";
+	$stmt = $intra->prepare($sql);
+	$stmt->bind_param("sssssi",$ticket_category,$ticket_priority,$ticket_subject,$ticket_summary,$ticket_attachments,$id);
+
+	$user_id=$data['user_id'];
+	$ticket_category=$data['ticket_category'];
+	$ticket_priority=$data['ticket_priority'];
+	$ticket_subject=$data['ticket_subject'];
+	$ticket_summary=$data['ticket_summary'];
+	$ticket_attachments=$data['ticket_attachments'];
+	$ticket_updated_by=$data['ticket_updated_by'];
+	$id=$data['id'];
+		
+	if($stmt->execute()){
+$res = [
+  'type' => '200',
+  'msg' => 'Ticket Update Successfully'
+  ];
+}else{
+$res = [
+  'type' => '400',
+  'msg' => $stmt->error
+  ];
+}
+$stmt->close();
+return json_encode($res);
+
+
+}
+function delete_ticket($id)
+{
+	global $intra;
+	global $res;
+    
+   	$show_query="DELETE FROM intra_tickets WHERE id=?";
+     $stmt = $intra->prepare($show_query);
+     $stmt->bind_param("i", $id);
+     $stmt->execute();
+   
+if($stmt->execute()){
+$res = [
+  'type' => '200',
+  'msg' => 'Ticket Deleted Successfully'
+  ];
+}else{
+$res = [
+  'type' => '400',
+  'msg' => $stmt->error
+  ];
+}
+$stmt->close();
+return json_encode($res);
+
+} 
+
+
+?>
